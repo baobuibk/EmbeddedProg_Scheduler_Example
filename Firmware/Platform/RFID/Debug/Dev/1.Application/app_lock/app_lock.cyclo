@@ -1,0 +1,4 @@
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/1.Application/app_lock/app_lock.c:16:6:app_lock_init	1
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/1.Application/app_lock/app_lock.c:22:6:app_lock_task	3
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/1.Application/app_lock/app_lock.c:34:6:app_lock_request_open	2
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/1.Application/app_lock/app_lock.c:46:18:app_lock_get_state	1

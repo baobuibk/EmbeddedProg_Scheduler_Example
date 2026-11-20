@@ -1,0 +1,12 @@
+../Dev/3.Drivers/Components/I2C/stm32/stm32_i2c_io.c:45:21:i2c_get_instance	16	static
+../Dev/3.Drivers/Components/I2C/stm32/stm32_i2c_io.c:54:13:i2c_enable_clock	16	static
+../Dev/3.Drivers/Components/I2C/stm32/stm32_i2c_io.c:61:13:i2c_gpio_init	16	static
+../Dev/3.Drivers/Components/I2C/stm32/stm32_i2c_io.c:81:17:i2c_get_pclk1_hz	16	static
+../Dev/3.Drivers/Components/I2C/stm32/stm32_i2c_io.c:98:17:i2c_start	24	static
+../Dev/3.Drivers/Components/I2C/stm32/stm32_i2c_io.c:138:17:i2c_write_bytes	32	static
+../Dev/3.Drivers/Components/I2C/stm32/stm32_i2c_io.c:163:17:i2c_read_bytes	32	static
+../Dev/3.Drivers/Components/I2C/stm32/stm32_i2c_io.c:230:10:i2c_io_init	24	static
+../Dev/3.Drivers/Components/I2C/stm32/stm32_i2c_io.c:253:10:i2c_io_set_speed	40	static
+../Dev/3.Drivers/Components/I2C/stm32/stm32_i2c_io.c:307:10:i2c_io_write_sync	32	static
+../Dev/3.Drivers/Components/I2C/stm32/stm32_i2c_io.c:335:10:i2c_io_read_sync	32	static
+../Dev/3.Drivers/Components/I2C/stm32/stm32_i2c_io.c:363:10:i2c_io_write_read_sync	32	static

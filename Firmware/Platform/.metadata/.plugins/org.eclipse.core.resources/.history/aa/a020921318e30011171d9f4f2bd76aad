@@ -1,0 +1,18 @@
+/*
+ * bsp_i2c1.c
+ */
+
+#include "bsp_i2c1.h"
+#include "i2c_io.h"
+
+static i2c_io_t s_i2c1 = { .ui32I2cPort = 1U };
+
+void bsp_i2c1_init(void)
+{
+   // i2c_io_init(&s_i2c1);
+}
+
+i2c_io_t *bsp_i2c1_get(void)
+{
+    return &s_i2c1;
+}

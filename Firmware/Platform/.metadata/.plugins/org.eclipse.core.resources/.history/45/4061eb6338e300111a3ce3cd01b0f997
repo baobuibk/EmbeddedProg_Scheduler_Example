@@ -1,0 +1,120 @@
+/*
+ * app_main.c
+ *
+ * Wires every app_<module>_task() into the scheduler's task table and
+ * runs the scheduler loop - same structure as Book_Example_Repos'
+ * chapter11_example1/Src/App/app_main.c (g_pTaskTable[]/g_ui32SchedulerNumTasks
+ * are the scheduler's own required globals, see
+ * Dev/4.MiddleWare/scheduler/scheduler.h).
+ *
+ * scheduler_init() configures the tick rate (1000 ticks/sec -> 1ms/tick,
+ * so a task's ui32FrequencyTicks is directly "how many ms between
+ * calls") and starts SysTick via Dev/2.BSP/bsp_systick's strong
+ * platform_systick_init() override. scheduler_run() only ever fires on
+ * elapsed time - event_run() (Dev/4.MiddleWare/event) is the separate,
+ * complementary mechanism for anything that must react to an interrupt
+ * instead of (or in addition to) a fixed period; g_pEventTable[] below
+ * is its own required global, same ownership pattern as g_pTaskTable[].
+ */
+
+#include <stdint.h>
+
+#include "scheduler.h"
+#include "event.h"
+#include "app_keypad.h"
+#include "app_rtc.h"
+#include "app_rc522.h"
+#include "app_persist.h"
+#include "app_lock.h"
+#include "app_system.h"
+#include "app_exit_button.h"
+#include "bsp_exit_button.h"
+#include "app_lcd.h"
+#include "app_log.h"
+#include "app_led.h"
+
+tSchedulerTask g_pTaskTable[7] =
+{
+    {
+        &app_keypad_task,
+        20,     /* call every 20ms */
+        0,      /* count from start */
+        true    /* active */
+    },
+    {
+        &app_rtc_task,
+        1000,   /* call every 1000ms (1s) */
+        0,      /* count from start */
+        true    /* active */
+    },
+    {
+        &app_rc522_task,
+        200,    /* call every 200ms - only a cheap REQA, see app_rc522.h */
+        0,      /* count from start */
+        true    /* active */
+    },
+    {
+        &app_system_task,
+        100,    /* call every 100ms - faster than app_rc522_task's 200ms
+                 * so a new UID is picked up promptly, see app_system.h */
+        0,      /* count from start */
+        true    /* active */
+    },
+    {
+        &app_lock_task,
+        100,    /* call every 100ms - just checks the 5s open-window timeout */
+        0,      /* count from start */
+        true    /* active */
+    },
+    {
+        &app_lcd_task,
+        100,    /* call every 100ms - matches app_system's own cadence, see app_lcd.h */
+        0,      /* count from start */
+        true    /* active */
+    },
+    {
+        &app_led_task,
+        APP_LED_BLINK_PERIOD_MS / 2U,  /* toggle every half-period -> 1s full blink, see app_led.h */
+        0,      /* count from start */
+        true    /* active */
+    }
+};
+uint32_t g_ui32SchedulerNumTasks = 7;
+
+/* First real event: bsp_exit_button's EXTI11 handler posts this
+ * whenever the exit button is pressed (see Dev/2.BSP/bsp_exit_button.h)
+ * - a genuine fit for this module, unlike RC522's reverted attempt (see
+ * bsp_rc522.h): a button press has nothing to periodically re-ask,
+ * so EXTI here really does replace polling instead of merely
+ * duplicating a wait the driver already does synchronously. */
+tEventEntry g_pEventTable[1] = {
+    [BSP_EXIT_BUTTON_EVENT_PRESSED] = { &app_exit_button_on_press, false }
+};
+uint32_t g_ui32EventNumEvents = 1U;
+
+void app_main(void)
+{
+	scheduler_init(1000); /* 1000 ticks/sec -> 1ms tick */
+    app_persist_init(); /* load admin password + user table from EEPROM first */
+    app_log_init();      /* access-log ring buffer, right after app_persist's own region */
+//    app_keypad_init();
+//    app_rtc_init();
+//   app_rc522_init();
+//    app_lock_init();
+//    app_system_init();
+//    app_exit_button_init();
+//    app_lcd_init();
+//    app_led_init();
+//
+//    bsp_led_off();
+
+    while (1) {
+	  bsp_led_toggle();
+	  for(int i = 0; i< 100000;i++);
+}
+
+    for (;;) {
+       scheduler_run();
+        event_run();
+    }
+}

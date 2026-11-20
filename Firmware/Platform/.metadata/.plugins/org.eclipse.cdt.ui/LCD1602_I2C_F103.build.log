@@ -1,0 +1,19 @@
+09:39:51 **** Incremental Build of configuration Release for project LCD1602_I2C_F103 ****
+make -j12 all 
+arm-none-eabi-gcc -o "LCD1602_I2C_F103.elf" @"objects.list"   -mcpu=cortex-m3 -T"D:\PROJECT\LAB2209_PROG_TRAIN\LCD1602_I2C_F103\LCD1602_I2C_F103\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="LCD1602_I2C_F103.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: LCD1602_I2C_F103.elf
+ 
+arm-none-eabi-size  LCD1602_I2C_F103.elf 
+arm-none-eabi-objdump -h -S LCD1602_I2C_F103.elf  > "LCD1602_I2C_F103.list"
+arm-none-eabi-objcopy  -O ihex LCD1602_I2C_F103.elf  "LCD1602_I2C_F103.hex"
+   text	   data	    bss	    dec	    hex	filename
+   4668	     12	   1660	   6340	   18c4	LCD1602_I2C_F103.elf
+Finished building: default.size.stdout
+ 
+Finished building: LCD1602_I2C_F103.hex
+ 
+Finished building: LCD1602_I2C_F103.list
+ 
+
+09:39:54 Build Finished. 0 errors, 0 warnings. (took 2s.318ms)
+

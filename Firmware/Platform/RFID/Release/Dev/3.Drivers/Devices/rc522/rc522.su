@@ -1,0 +1,10 @@
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Devices/rc522/rc522.c:67:10:rc522_write_register	24	static
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Devices/rc522/rc522.c:90:10:rc522_read_register	24	static
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Devices/rc522/rc522.c:116:17:rc522_set_register_bitmask	24	static
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Devices/rc522/rc522.c:260:17:rc522_transceive	40	static
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Devices/rc522/rc522.c:144:10:rc522_antenna_on	0	static
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Devices/rc522/rc522.c:150:10:rc522_antenna_off	16	static
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Devices/rc522/rc522.c:190:10:rc522_init	24	static
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Devices/rc522/rc522.c:353:10:rc522_request_a	32	static
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Devices/rc522/rc522.c:368:10:rc522_read_uid	64	static
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Devices/rc522/rc522.c:429:10:rc522_halt	32	static

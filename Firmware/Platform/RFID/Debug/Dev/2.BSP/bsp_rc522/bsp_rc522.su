@@ -1,0 +1,4 @@
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/2.BSP/bsp_rc522/bsp_rc522.c:17:6:bsp_rc522_init	24	static
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/2.BSP/bsp_rc522/bsp_rc522.c:31:10:bsp_rc522_poll	8	static
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/2.BSP/bsp_rc522/bsp_rc522.c:36:10:bsp_rc522_read_uid	16	static
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/2.BSP/bsp_rc522/bsp_rc522.c:41:10:bsp_rc522_halt	8	static

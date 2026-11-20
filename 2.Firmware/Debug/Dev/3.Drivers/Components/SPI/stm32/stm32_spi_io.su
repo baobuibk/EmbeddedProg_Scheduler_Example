@@ -1,0 +1,11 @@
+../Dev/3.Drivers/Components/SPI/stm32/stm32_spi_io.c:41:21:spi_get_instance	16	static
+../Dev/3.Drivers/Components/SPI/stm32/stm32_spi_io.c:50:13:spi_enable_clock	16	static
+../Dev/3.Drivers/Components/SPI/stm32/stm32_spi_io.c:57:13:spi_gpio_init	16	static
+../Dev/3.Drivers/Components/SPI/stm32/stm32_spi_io.c:80:10:spi_io_init	24	static
+../Dev/3.Drivers/Components/SPI/stm32/stm32_spi_io.c:107:10:spi_io_set_frame_size	24	static
+../Dev/3.Drivers/Components/SPI/stm32/stm32_spi_io.c:144:10:spi_io_set_mode	24	static
+../Dev/3.Drivers/Components/SPI/stm32/stm32_spi_io.c:169:10:spi_io_set_prescale	24	static
+../Dev/3.Drivers/Components/SPI/stm32/stm32_spi_io.c:197:10:spi_io_transfer_sync	48	static
+../Dev/3.Drivers/Components/SPI/stm32/stm32_spi_io.c:265:10:spi_io_read_sync	24	static
+../Dev/3.Drivers/Components/SPI/stm32/stm32_spi_io.c:276:10:spi_io_write_sync	24	static
+../Dev/3.Drivers/Components/SPI/stm32/stm32_spi_io.c:287:10:spi_io_write_and_read_sync	32	static

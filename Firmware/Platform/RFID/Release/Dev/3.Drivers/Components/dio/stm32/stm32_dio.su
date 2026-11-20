@@ -1,0 +1,7 @@
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Components/dio/stm32/stm32_dio.c:38:22:do_port	0	static
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Components/dio/stm32/stm32_dio.c:56:6:do_set	8	static
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Components/dio/stm32/stm32_dio.c:68:6:do_reset	8	static
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Components/dio/stm32/stm32_dio.c:80:6:do_toggle	8	static
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Components/dio/stm32/stm32_dio.c:99:6:dio_mode	24	static
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Components/dio/stm32/stm32_dio.c:144:6:di_read	8	static
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Components/dio/stm32/stm32_dio.c:163:6:dio_flow_address_pulse	16	static,ignoring_inline_asm

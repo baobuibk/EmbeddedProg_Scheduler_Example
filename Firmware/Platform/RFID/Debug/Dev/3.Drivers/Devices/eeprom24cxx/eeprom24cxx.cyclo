@@ -1,0 +1,6 @@
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Devices/eeprom24cxx/eeprom24cxx.c:17:17:eeprom24cxx_wait_write_done	4
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Devices/eeprom24cxx/eeprom24cxx.c:39:10:eeprom24cxx_init	6
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Devices/eeprom24cxx/eeprom24cxx.c:55:10:eeprom24cxx_write_byte	1
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Devices/eeprom24cxx/eeprom24cxx.c:60:10:eeprom24cxx_read_byte	1
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Devices/eeprom24cxx/eeprom24cxx.c:65:10:eeprom24cxx_write	10
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Devices/eeprom24cxx/eeprom24cxx.c:119:10:eeprom24cxx_read	6

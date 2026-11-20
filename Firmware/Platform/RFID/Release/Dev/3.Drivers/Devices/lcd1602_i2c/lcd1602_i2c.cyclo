@@ -1,0 +1,12 @@
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Devices/lcd1602_i2c/lcd1602_i2c.c:50:17:lcd1602_write_nibble	2
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Devices/lcd1602_i2c/lcd1602_i2c.c:64:17:lcd1602_send_byte	3
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Devices/lcd1602_i2c/lcd1602_i2c.c:83:10:lcd1602_command	2
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Devices/lcd1602_i2c/lcd1602_i2c.c:92:10:lcd1602_data	2
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Devices/lcd1602_i2c/lcd1602_i2c.c:101:10:lcd1602_init	5
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Devices/lcd1602_i2c/lcd1602_i2c.c:149:10:lcd1602_clear	1
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Devices/lcd1602_i2c/lcd1602_i2c.c:154:10:lcd1602_home	1
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Devices/lcd1602_i2c/lcd1602_i2c.c:159:10:lcd1602_set_cursor	4
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Devices/lcd1602_i2c/lcd1602_i2c.c:168:10:lcd1602_write_char	1
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Devices/lcd1602_i2c/lcd1602_i2c.c:173:10:lcd1602_print	5
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Devices/lcd1602_i2c/lcd1602_i2c.c:189:10:lcd1602_backlight	3
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Devices/lcd1602_i2c/lcd1602_i2c.c:214:10:lcd1602_display_on_off	2

@@ -1,0 +1,48 @@
+site_name: STM32 Access Control System
+site_description: Thiết kế hệ thống kiểm soát ra vào (Access Control) dùng STM32F103
+theme:
+  name: material
+  language: vi
+  palette:
+    - scheme: default
+      primary: indigo
+      toggle:
+        icon: material/weather-night
+        name: Chuyển sang dark mode
+    - scheme: slate
+      primary: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Chuyển sang light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.indexes
+    - content.code.copy
+    - toc.integrate
+
+markdown_extensions:
+  - admonition
+  - tables
+  - attr_list
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+nav:
+  - Home: index.md
+  - Hardware:
+      - Tổng quan & Sơ đồ khối: hardware/index.md
+      - Kết nối & Pinout: hardware/connections.md
+  - Firmware:
+      - Kiến trúc phần mềm: firmware/index.md
+      - Module đã viết: firmware/modules.md
+      - Task & Data Flow: firmware/tasks-dataflow.md
+      - app_persist (EEPROM): firmware/app-persist.md
+      - app_lock (máy trạng thái): firmware/app-lock.md
+      - app_system (+ LCD): firmware/app-system.md
+      - app_log (UC-09): firmware/app-log.md
+  - Use Cases: use-cases.md

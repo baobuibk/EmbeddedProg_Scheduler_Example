@@ -1,0 +1,9 @@
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Components/SPI/stm32/stm32_spi_io.c:51:21:spi_get_instance	2
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Components/SPI/stm32/stm32_spi_io.c:102:10:spi_io_init	5
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Components/SPI/stm32/stm32_spi_io.c:129:10:spi_io_set_frame_size	5
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Components/SPI/stm32/stm32_spi_io.c:166:10:spi_io_set_mode	4
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Components/SPI/stm32/stm32_spi_io.c:191:10:spi_io_set_prescale	4
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Components/SPI/stm32/stm32_spi_io.c:219:10:spi_io_transfer_sync	11
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Components/SPI/stm32/stm32_spi_io.c:287:10:spi_io_read_sync	3
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Components/SPI/stm32/stm32_spi_io.c:298:10:spi_io_write_sync	3
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Components/SPI/stm32/stm32_spi_io.c:309:10:spi_io_write_and_read_sync	3

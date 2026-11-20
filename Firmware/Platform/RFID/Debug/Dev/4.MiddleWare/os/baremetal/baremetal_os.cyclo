@@ -1,0 +1,6 @@
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/4.MiddleWare/os/baremetal/baremetal_os.c:27:6:os_lock_init	2
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/4.MiddleWare/os/baremetal/baremetal_os.c:37:10:os_lock_acquire	6
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/4.MiddleWare/os/baremetal/baremetal_os.c:68:10:os_lock_release	3
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/4.MiddleWare/os/baremetal/baremetal_os.c:84:10:os_reg_wait_flag_blocking	4
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/4.MiddleWare/os/baremetal/baremetal_os.c:101:10:os_reg_wait_flag_clear_blocking	4
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/4.MiddleWare/os/baremetal/baremetal_os.c:118:10:os_tick_get	1

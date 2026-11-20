@@ -1,0 +1,4 @@
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/1.Application/app_rtc/app_rtc.c:17:6:app_rtc_init	0	static
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/1.Application/app_rtc/app_rtc.c:22:6:app_rtc_task	16	static
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/1.Application/app_rtc/app_rtc.c:33:6:app_rtc_get_time	0	static
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/1.Application/app_rtc/app_rtc.c:44:6:app_rtc_consume_if_updated	12	static

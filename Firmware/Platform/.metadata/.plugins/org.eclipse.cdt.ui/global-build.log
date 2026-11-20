@@ -1,0 +1,44 @@
+09:48:45 **** Clean-only build of configuration Release for project Scheduler ****
+make -j12 clean 
+rm -rf ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_dma.cyclo ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_dma.d ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_dma.o ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_dma.su ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_exti.cyclo ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_exti.d ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_exti.o ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_exti.su ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_gpio.cyclo ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_gpio.d ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_gpio.o ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_gpio.su ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_i2c.cyclo ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_i2c.d ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_i2c.o ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_i2c.su ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_pwr.cyclo ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_pwr.d ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_pwr.o ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_pwr.su ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_rcc.cyclo ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_rcc.d ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_rcc.o ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_rcc.su ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_utils.cyclo ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_utils.d ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_utils.o ./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_utils.su
+rm -rf ./Dev/4.MiddleWare/scheduler/scheduler.cyclo ./Dev/4.MiddleWare/scheduler/scheduler.d ./Dev/4.MiddleWare/scheduler/scheduler.o ./Dev/4.MiddleWare/scheduler/scheduler.su
+rm -rf ./Dev/4.MiddleWare/os/baremetal/baremetal_os.cyclo ./Dev/4.MiddleWare/os/baremetal/baremetal_os.d ./Dev/4.MiddleWare/os/baremetal/baremetal_os.o ./Dev/4.MiddleWare/os/baremetal/baremetal_os.su
+rm -rf ./Dev/4.MiddleWare/event/event.cyclo ./Dev/4.MiddleWare/event/event.d ./Dev/4.MiddleWare/event/event.o ./Dev/4.MiddleWare/event/event.su
+rm -rf ./Dev/3.Drivers/Devices/rc522/rc522.cyclo ./Dev/3.Drivers/Devices/rc522/rc522.d ./Dev/3.Drivers/Devices/rc522/rc522.o ./Dev/3.Drivers/Devices/rc522/rc522.su
+rm -rf ./Dev/3.Drivers/Devices/lcd1602_parallel/lcd1602_parallel.cyclo ./Dev/3.Drivers/Devices/lcd1602_parallel/lcd1602_parallel.d ./Dev/3.Drivers/Devices/lcd1602_parallel/lcd1602_parallel.o ./Dev/3.Drivers/Devices/lcd1602_parallel/lcd1602_parallel.su
+rm -rf ./Dev/3.Drivers/Devices/lcd1602_i2c/lcd1602_i2c.cyclo ./Dev/3.Drivers/Devices/lcd1602_i2c/lcd1602_i2c.d ./Dev/3.Drivers/Devices/lcd1602_i2c/lcd1602_i2c.o ./Dev/3.Drivers/Devices/lcd1602_i2c/lcd1602_i2c.su
+rm -rf ./Dev/3.Drivers/Devices/keypad4x4/keypad4x4.cyclo ./Dev/3.Drivers/Devices/keypad4x4/keypad4x4.d ./Dev/3.Drivers/Devices/keypad4x4/keypad4x4.o ./Dev/3.Drivers/Devices/keypad4x4/keypad4x4.su
+rm -rf ./Dev/3.Drivers/Devices/eeprom24cxx/eeprom24cxx.cyclo ./Dev/3.Drivers/Devices/eeprom24cxx/eeprom24cxx.d ./Dev/3.Drivers/Devices/eeprom24cxx/eeprom24cxx.o ./Dev/3.Drivers/Devices/eeprom24cxx/eeprom24cxx.su
+rm -rf ./Dev/3.Drivers/Devices/ds3234/ds3234.cyclo ./Dev/3.Drivers/Devices/ds3234/ds3234.d ./Dev/3.Drivers/Devices/ds3234/ds3234.o ./Dev/3.Drivers/Devices/ds3234/ds3234.su
+rm -rf ./Dev/3.Drivers/Devices/ds1307/ds1307.cyclo ./Dev/3.Drivers/Devices/ds1307/ds1307.d ./Dev/3.Drivers/Devices/ds1307/ds1307.o ./Dev/3.Drivers/Devices/ds1307/ds1307.su
+rm -rf ./Dev/3.Drivers/Components/dio/stm32/stm32_dio.cyclo ./Dev/3.Drivers/Components/dio/stm32/stm32_dio.d ./Dev/3.Drivers/Components/dio/stm32/stm32_dio.o ./Dev/3.Drivers/Components/dio/stm32/stm32_dio.su
+rm -rf ./Dev/3.Drivers/Components/SPI/stm32/stm32_spi_io.cyclo ./Dev/3.Drivers/Components/SPI/stm32/stm32_spi_io.d ./Dev/3.Drivers/Components/SPI/stm32/stm32_spi_io.o ./Dev/3.Drivers/Components/SPI/stm32/stm32_spi_io.su
+rm -rf ./Dev/3.Drivers/Components/SPI/spi_io.cyclo ./Dev/3.Drivers/Components/SPI/spi_io.d ./Dev/3.Drivers/Components/SPI/spi_io.o ./Dev/3.Drivers/Components/SPI/spi_io.su
+rm -rf ./Dev/3.Drivers/Components/I2C/stm32/stm32_i2c_io.cyclo ./Dev/3.Drivers/Components/I2C/stm32/stm32_i2c_io.d ./Dev/3.Drivers/Components/I2C/stm32/stm32_i2c_io.o ./Dev/3.Drivers/Components/I2C/stm32/stm32_i2c_io.su
+rm -rf ./Dev/3.Drivers/Components/I2C/i2c_io.cyclo ./Dev/3.Drivers/Components/I2C/i2c_io.d ./Dev/3.Drivers/Components/I2C/i2c_io.o ./Dev/3.Drivers/Components/I2C/i2c_io.su
+rm -rf ./Dev/2.BSP/bsp_systick/bsp_systick.cyclo ./Dev/2.BSP/bsp_systick/bsp_systick.d ./Dev/2.BSP/bsp_systick/bsp_systick.o ./Dev/2.BSP/bsp_systick/bsp_systick.su
+rm -rf ./Dev/2.BSP/bsp_rtc/bsp_rtc.cyclo ./Dev/2.BSP/bsp_rtc/bsp_rtc.d ./Dev/2.BSP/bsp_rtc/bsp_rtc.o ./Dev/2.BSP/bsp_rtc/bsp_rtc.su
+rm -rf ./Dev/2.BSP/bsp_rc522/bsp_rc522.cyclo ./Dev/2.BSP/bsp_rc522/bsp_rc522.d ./Dev/2.BSP/bsp_rc522/bsp_rc522.o ./Dev/2.BSP/bsp_rc522/bsp_rc522.su
+rm -rf ./Dev/2.BSP/bsp_lock/bsp_lock.cyclo ./Dev/2.BSP/bsp_lock/bsp_lock.d ./Dev/2.BSP/bsp_lock/bsp_lock.o ./Dev/2.BSP/bsp_lock/bsp_lock.su
+rm -rf ./Dev/2.BSP/bsp_led/bsp_led.cyclo ./Dev/2.BSP/bsp_led/bsp_led.d ./Dev/2.BSP/bsp_led/bsp_led.o ./Dev/2.BSP/bsp_led/bsp_led.su
+rm -rf ./Dev/2.BSP/bsp_lcd_parallel/bsp_lcd_parallel.cyclo ./Dev/2.BSP/bsp_lcd_parallel/bsp_lcd_parallel.d ./Dev/2.BSP/bsp_lcd_parallel/bsp_lcd_parallel.o ./Dev/2.BSP/bsp_lcd_parallel/bsp_lcd_parallel.su
+rm -rf ./Dev/2.BSP/bsp_lcd/bsp_lcd.cyclo ./Dev/2.BSP/bsp_lcd/bsp_lcd.d ./Dev/2.BSP/bsp_lcd/bsp_lcd.o ./Dev/2.BSP/bsp_lcd/bsp_lcd.su
+rm -rf ./Dev/2.BSP/bsp_keypad/bsp_keypad.cyclo ./Dev/2.BSP/bsp_keypad/bsp_keypad.d ./Dev/2.BSP/bsp_keypad/bsp_keypad.o ./Dev/2.BSP/bsp_keypad/bsp_keypad.su
+rm -rf ./Dev/2.BSP/bsp_i2c1/bsp_i2c1.cyclo ./Dev/2.BSP/bsp_i2c1/bsp_i2c1.d ./Dev/2.BSP/bsp_i2c1/bsp_i2c1.o ./Dev/2.BSP/bsp_i2c1/bsp_i2c1.su
+rm -rf ./Dev/2.BSP/bsp_exit_button/bsp_exit_button.cyclo ./Dev/2.BSP/bsp_exit_button/bsp_exit_button.d ./Dev/2.BSP/bsp_exit_button/bsp_exit_button.o ./Dev/2.BSP/bsp_exit_button/bsp_exit_button.su
+rm -rf ./Dev/2.BSP/bsp_eeprom/bsp_eeprom.cyclo ./Dev/2.BSP/bsp_eeprom/bsp_eeprom.d ./Dev/2.BSP/bsp_eeprom/bsp_eeprom.o ./Dev/2.BSP/bsp_eeprom/bsp_eeprom.su
+rm -rf ./Dev/1.Application/app_system/app_system.cyclo ./Dev/1.Application/app_system/app_system.d ./Dev/1.Application/app_system/app_system.o ./Dev/1.Application/app_system/app_system.su
+rm -rf ./Dev/1.Application/app_rtc/app_rtc.cyclo ./Dev/1.Application/app_rtc/app_rtc.d ./Dev/1.Application/app_rtc/app_rtc.o ./Dev/1.Application/app_rtc/app_rtc.su
+rm -rf ./Dev/1.Application/app_rc522/app_rc522.cyclo ./Dev/1.Application/app_rc522/app_rc522.d ./Dev/1.Application/app_rc522/app_rc522.o ./Dev/1.Application/app_rc522/app_rc522.su
+rm -rf ./Dev/1.Application/app_persist/app_persist.cyclo ./Dev/1.Application/app_persist/app_persist.d ./Dev/1.Application/app_persist/app_persist.o ./Dev/1.Application/app_persist/app_persist.su
+rm -rf ./Dev/1.Application/app_log/app_log.cyclo ./Dev/1.Application/app_log/app_log.d ./Dev/1.Application/app_log/app_log.o ./Dev/1.Application/app_log/app_log.su
+rm -rf ./Dev/1.Application/app_lock/app_lock.cyclo ./Dev/1.Application/app_lock/app_lock.d ./Dev/1.Application/app_lock/app_lock.o ./Dev/1.Application/app_lock/app_lock.su
+rm -rf ./Dev/1.Application/app_led/app_led.cyclo ./Dev/1.Application/app_led/app_led.d ./Dev/1.Application/app_led/app_led.o ./Dev/1.Application/app_led/app_led.su
+rm -rf ./Dev/1.Application/app_lcd/app_lcd.cyclo ./Dev/1.Application/app_lcd/app_lcd.d ./Dev/1.Application/app_lcd/app_lcd.o ./Dev/1.Application/app_lcd/app_lcd.su
+rm -rf ./Dev/1.Application/app_keypad/app_keypad.cyclo ./Dev/1.Application/app_keypad/app_keypad.d ./Dev/1.Application/app_keypad/app_keypad.o ./Dev/1.Application/app_keypad/app_keypad.su
+rm -rf ./Dev/1.Application/app_exit_button/app_exit_button.cyclo ./Dev/1.Application/app_exit_button/app_exit_button.d ./Dev/1.Application/app_exit_button/app_exit_button.o ./Dev/1.Application/app_exit_button/app_exit_button.su
+rm -rf ./Dev/1.Application/app_main.cyclo ./Dev/1.Application/app_main.d ./Dev/1.Application/app_main.o ./Dev/1.Application/app_main.su
+rm -rf ./Core/Startup/startup_stm32f103c4tx.d ./Core/Startup/startup_stm32f103c4tx.o
+rm -rf ./Core/Src/main.cyclo ./Core/Src/main.d ./Core/Src/main.o ./Core/Src/main.su ./Core/Src/stm32f1xx_it.cyclo ./Core/Src/stm32f1xx_it.d ./Core/Src/stm32f1xx_it.o ./Core/Src/stm32f1xx_it.su ./Core/Src/syscalls.cyclo ./Core/Src/syscalls.d ./Core/Src/syscalls.o ./Core/Src/syscalls.su ./Core/Src/sysmem.cyclo ./Core/Src/sysmem.d ./Core/Src/sysmem.o ./Core/Src/sysmem.su ./Core/Src/system_stm32f1xx.cyclo ./Core/Src/system_stm32f1xx.d ./Core/Src/system_stm32f1xx.o ./Core/Src/system_stm32f1xx.su
+rm -rf Scheduler.elf Scheduler.list Scheduler.map default.size.stdout
+ 

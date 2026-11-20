@@ -1,0 +1,10 @@
+../Dev/4.MiddleWare/scheduler/scheduler.c:31:1:scheduler_systick_int_handler	4	static
+../Dev/4.MiddleWare/scheduler/scheduler.c:36:28:platform_systick_init	16	static
+../Dev/4.MiddleWare/scheduler/scheduler.c:65:1:scheduler_init	16	static
+../Dev/4.MiddleWare/scheduler/scheduler.c:80:1:scheduler_get_tick	4	static
+../Dev/4.MiddleWare/scheduler/scheduler.c:102:1:scheduler_run	16	static
+../Dev/4.MiddleWare/scheduler/scheduler.c:156:1:scheduler_task_enable	16	static
+../Dev/4.MiddleWare/scheduler/scheduler.c:208:1:scheduler_task_disable	16	static
+../Dev/4.MiddleWare/scheduler/scheduler.c:233:1:scheduler_tick_count_get	4	static
+../Dev/4.MiddleWare/scheduler/scheduler.c:257:1:scheduler_elapsed_ticks_get	16	static
+../Dev/4.MiddleWare/scheduler/scheduler.c:282:1:scheduler_elapsed_ticks_calc	16	static

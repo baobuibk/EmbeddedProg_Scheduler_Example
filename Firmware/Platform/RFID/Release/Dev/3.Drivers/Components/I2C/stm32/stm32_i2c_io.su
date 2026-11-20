@@ -1,0 +1,6 @@
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Components/I2C/stm32/stm32_i2c_io.c:121:17:i2c_configure	16	static
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Components/I2C/stm32/stm32_i2c_io.c:162:10:i2c_io_init	40	static
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Components/I2C/stm32/stm32_i2c_io.c:181:10:i2c_io_set_speed	16	static
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Components/I2C/stm32/stm32_i2c_io.c:207:10:i2c_io_write_sync	24	static
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Components/I2C/stm32/stm32_i2c_io.c:228:10:i2c_io_read_sync	24	static
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/3.Drivers/Components/I2C/stm32/stm32_i2c_io.c:249:10:i2c_io_write_read_sync	40	static

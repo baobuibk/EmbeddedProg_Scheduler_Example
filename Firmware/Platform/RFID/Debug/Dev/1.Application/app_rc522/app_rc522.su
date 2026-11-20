@@ -1,0 +1,4 @@
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/1.Application/app_rc522/app_rc522.c:19:6:app_rc522_init	8	static
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/1.Application/app_rc522/app_rc522.c:24:6:app_rc522_task	16	static
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/1.Application/app_rc522/app_rc522.c:43:6:app_rc522_get_last_uid	16	static
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/1.Application/app_rc522/app_rc522.c:58:6:app_rc522_consume_if_updated	16	static

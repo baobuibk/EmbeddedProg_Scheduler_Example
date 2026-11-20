@@ -1,0 +1,2 @@
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/2.BSP/bsp_systick/bsp_systick.c:22:6:platform_systick_init	0	static
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/2.BSP/bsp_systick/bsp_systick.c:56:10:HAL_GetTick	0	static

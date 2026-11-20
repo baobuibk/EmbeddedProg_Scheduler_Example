@@ -1,0 +1,28 @@
+/*
+ * bsp_rtc.c
+ */
+
+#include "bsp_rtc.h"
+#include "ds1307.h"
+#include "bsp_i2c1.h"
+
+static ds1307_t s_rtc;
+
+void bsp_rtc_init(void)
+{
+    //bsp_i2c1_init(); /* idempotent - see bsp_i2c1.h */
+
+    ds1307_init_t init = { .pI2cBus = bsp_i2c1_get() };
+
+    ds1307_init(&s_rtc, &init);
+}
+
+uint32_t bsp_rtc_get_time(ds1307_time_t *pTime)
+{
+    return ds1307_get_time(&s_rtc, pTime);
+}
+
+uint32_t bsp_rtc_set_time(const ds1307_time_t *pTime)
+{
+    return ds1307_set_time(&s_rtc, pTime);
+}

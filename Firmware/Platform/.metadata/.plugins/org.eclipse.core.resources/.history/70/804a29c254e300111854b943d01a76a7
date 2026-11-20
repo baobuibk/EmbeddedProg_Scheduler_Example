@@ -1,0 +1,221 @@
+/*
+ * lcd1602_i2c.c
+ */
+
+#include <stddef.h>
+#include <stdbool.h>
+
+#include "lcd1602_i2c.h"
+#include "i2c_io.h"
+#include "define.h"
+#include "stm32f1xx.h"
+/* PCF8574 bit positions (see the wiring note in lcd1602_i2c.h) */
+#define LCD_BIT_RS      (0x01u)
+#define LCD_BIT_RW      (0x02u)
+#define LCD_BIT_EN      (0x04u)
+#define LCD_BIT_BL      (0x08u)
+
+/* HD44780 instructions */
+#define LCD_CMD_CLEAR_DISPLAY       (0x01u)
+#define LCD_CMD_RETURN_HOME         (0x02u)
+#define LCD_CMD_ENTRY_MODE_SET      (0x04u)
+#define LCD_CMD_DISPLAY_CONTROL     (0x08u)
+#define LCD_CMD_FUNCTION_SET        (0x20u)
+#define LCD_CMD_SET_DDRAM_ADDR      (0x80u)
+
+#define LCD_ENTRY_LEFT_TO_RIGHT     (0x02u)
+#define LCD_DISPLAY_ON              (0x04u)
+#define LCD_FUNCTION_4BIT_2LINE     (0x08u)
+
+/* Row 0/1 DDRAM base addresses, standard HD44780 16x2 layout. */
+static const uint8_t lcd_row_offset[LCD1602_ROWS] = { 0x00U, 0x40U };
+
+/*
+ * One PCF8574 byte out over I2C. Caller must already hold me->pI2cBus's
+ * lock (see the locking-policy note in i2c_io.h) - every nibble write
+ * below is one such byte, and a full command/data byte is two of them,
+ * which must not be interleaved with another bus user's transaction.
+ */
+static uint32_t lcd1602_i2c_write(lcd1602_t *me, uint8_t ui8Byte)
+{
+	LL_I2C_GenerateStartCondition(I2C1);
+	while (1);
+    return i2c_io_write_sync(me->pI2cBus, me->ui16DevAddr, &ui8Byte, 1U);
+}
+
+/* Latches ui8Nibble (already positioned at bits 4-7) plus RS/backlight
+ * through an EN high->low pulse. The two I2C transfers that make up the
+ * pulse take far longer than HD44780's ~450ns minimum EN width, so no
+ * extra delay is needed. */
+static uint32_t lcd1602_write_nibble(lcd1602_t *me, uint8_t ui8Nibble, bool bRs)
+{
+    uint8_t base = ui8Nibble | (bRs ? LCD_BIT_RS : 0U) |
+                   (me->bBacklightOn ? LCD_BIT_BL : 0U);
+
+    uint32_t err = lcd1602_i2c_write(me, base | LCD_BIT_EN);
+
+    if (err == ERROR_OK) {
+        err = lcd1602_i2c_write(me, base);
+    }
+
+    return err;
+}
+
+static uint32_t lcd1602_send_byte(lcd1602_t *me, uint8_t ui8Byte, bool bRs)
+{
+    uint32_t err = i2c_io_lock(me->pI2cBus, I2C_WAIT_TIME);
+
+    if (err != ERROR_OK) {
+        return err;
+    }
+
+    err = lcd1602_write_nibble(me, ui8Byte & 0xF0U, bRs);
+
+    if (err == ERROR_OK) {
+        err = lcd1602_write_nibble(me, (uint8_t)((ui8Byte << 4U) & 0xF0U), bRs);
+    }
+
+    i2c_io_unlock(me->pI2cBus);
+
+    return err;
+}
+
+uint32_t lcd1602_command(lcd1602_t *me, uint8_t ui8Cmd)
+{
+    if (me == NULL) {
+        return ERROR_INVALID_PARAM;
+    }
+
+    return lcd1602_send_byte(me, ui8Cmd, false);
+}
+
+uint32_t lcd1602_data(lcd1602_t *me, uint8_t ui8Data)
+{
+    if (me == NULL) {
+        return ERROR_INVALID_PARAM;
+    }
+
+    return lcd1602_send_byte(me, ui8Data, true);
+}
+
+uint32_t lcd1602_init(lcd1602_t *me, const lcd1602_init_t *init)
+{
+    if ((me == NULL) || (init == NULL) || (init->pI2cBus == NULL)) {
+        return ERROR_INVALID_PARAM;
+    }
+
+    me->pI2cBus = init->pI2cBus;
+    me->ui16DevAddr = init->ui16DevAddr;
+    me->bBacklightOn = true;
+
+    /* Power-on init: force 4-bit mode starting from an unknown state, the
+     * same three-times-0x3-then-0x2 nibble sequence every HD44780
+     * datasheet/app-note specifies. Each step's required settle time
+     * (>4.1ms, >100us) is already covered by this driver's I2C-speed
+     * transfers, so no extra delay is added. */
+    uint32_t err = lcd1602_write_nibble(me, 0x30U, false);
+
+    if (err == ERROR_OK) {
+        err = lcd1602_write_nibble(me, 0x30U, false);
+    }
+
+    if (err == ERROR_OK) {
+        err = lcd1602_write_nibble(me, 0x30U, false);
+    }
+
+    if (err == ERROR_OK) {
+        err = lcd1602_write_nibble(me, 0x20U, false); /* switch to 4-bit */
+    }
+
+    if (err == ERROR_OK) {
+        err = lcd1602_command(me, LCD_CMD_FUNCTION_SET | LCD_FUNCTION_4BIT_2LINE);
+    }
+
+    if (err == ERROR_OK) {
+        err = lcd1602_command(me, LCD_CMD_DISPLAY_CONTROL | LCD_DISPLAY_ON);
+    }
+
+    if (err == ERROR_OK) {
+        err = lcd1602_clear(me);
+    }
+
+    if (err == ERROR_OK) {
+        err = lcd1602_command(me, LCD_CMD_ENTRY_MODE_SET | LCD_ENTRY_LEFT_TO_RIGHT);
+    }
+
+    return err;
+}
+
+uint32_t lcd1602_clear(lcd1602_t *me)
+{
+    return lcd1602_command(me, LCD_CMD_CLEAR_DISPLAY);
+}
+
+uint32_t lcd1602_home(lcd1602_t *me)
+{
+    return lcd1602_command(me, LCD_CMD_RETURN_HOME);
+}
+
+uint32_t lcd1602_set_cursor(lcd1602_t *me, uint8_t ui8Col, uint8_t ui8Row)
+{
+    if ((me == NULL) || (ui8Row >= LCD1602_ROWS) || (ui8Col >= LCD1602_COLS)) {
+        return ERROR_INVALID_PARAM;
+    }
+
+    return lcd1602_command(me, LCD_CMD_SET_DDRAM_ADDR | (lcd_row_offset[ui8Row] + ui8Col));
+}
+
+uint32_t lcd1602_write_char(lcd1602_t *me, char c)
+{
+    return lcd1602_data(me, (uint8_t)c);
+}
+
+uint32_t lcd1602_print(lcd1602_t *me, const char *pcStr)
+{
+    if ((me == NULL) || (pcStr == NULL)) {
+        return ERROR_INVALID_PARAM;
+    }
+
+    uint32_t err = ERROR_OK;
+
+    while ((*pcStr != '\0') && (err == ERROR_OK)) {
+        err = lcd1602_write_char(me, *pcStr);
+        pcStr++;
+    }
+
+    return err;
+}
+
+uint32_t lcd1602_backlight(lcd1602_t *me, bool bOn)
+{
+    if (me == NULL) {
+        return ERROR_INVALID_PARAM;
+    }
+
+    me->bBacklightOn = bOn;
+
+    /* No RS/EN toggling needed - just re-latch the backlight bit on its
+     * own, which is safe (EN stays low) and doesn't touch the display. */
+    uint8_t byte = bOn ? LCD_BIT_BL : 0x00U;
+
+    uint32_t err = i2c_io_lock(me->pI2cBus, I2C_WAIT_TIME);
+
+    if (err != ERROR_OK) {
+        return err;
+    }
+
+    err = i2c_io_write_sync(me->pI2cBus, me->ui16DevAddr, &byte, 1U);
+
+    i2c_io_unlock(me->pI2cBus);
+
+    return err;
+}
+
+uint32_t lcd1602_display_on_off(lcd1602_t *me, bool bOn)
+{
+    if (me == NULL) {
+        return ERROR_INVALID_PARAM;
+    }
+
+    return lcd1602_command(me, LCD_CMD_DISPLAY_CONTROL | (bOn ? LCD_DISPLAY_ON : 0U));
+}

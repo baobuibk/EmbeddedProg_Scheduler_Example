@@ -1,0 +1,3 @@
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/2.BSP/bsp_lock/bsp_lock.c:12:6:bsp_lock_init	8	static
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/2.BSP/bsp_lock/bsp_lock.c:18:6:bsp_lock_open	8	static
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/2.BSP/bsp_lock/bsp_lock.c:23:6:bsp_lock_close	8	static

@@ -1,0 +1,8 @@
+../Dev/3.Drivers/Components/dio/stm32/stm32_dio.c:35:22:do_port	16	static
+../Dev/3.Drivers/Components/dio/stm32/stm32_dio.c:44:13:gpio_enable_clock	16	static
+../Dev/3.Drivers/Components/dio/stm32/stm32_dio.c:53:6:do_set	24	static
+../Dev/3.Drivers/Components/dio/stm32/stm32_dio.c:65:6:do_reset	24	static
+../Dev/3.Drivers/Components/dio/stm32/stm32_dio.c:77:6:do_toggle	24	static
+../Dev/3.Drivers/Components/dio/stm32/stm32_dio.c:96:6:dio_mode	40	static
+../Dev/3.Drivers/Components/dio/stm32/stm32_dio.c:141:6:di_read	24	static
+../Dev/3.Drivers/Components/dio/stm32/stm32_dio.c:160:6:dio_flow_address_pulse	32	static,ignoring_inline_asm

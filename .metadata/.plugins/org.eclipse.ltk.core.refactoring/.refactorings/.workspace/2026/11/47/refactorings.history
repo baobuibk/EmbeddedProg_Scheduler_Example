@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Delete resource &apos;2.Firmware/Dev/3.Drivers/Componets/dio&apos;" deleteContents="false" description="Delete resource &apos;2.Firmware/Dev/3.Drivers/Componets/dio&apos;" element1="/2.Firmware/Dev/3.Drivers/Componets/dio" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="1" stamp="1794907148899"/>
+</session>

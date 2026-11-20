@@ -1,0 +1,2 @@
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/2.BSP/bsp_exit_button/bsp_exit_button.c:14:6:bsp_exit_button_init	8	static
+D:/PROJECT/LAB2209_PROG_TRAIN/STM32_Scheduler/Firmware/Dev/2.BSP/bsp_exit_button/bsp_exit_button.c:37:6:EXTI15_10_IRQHandler	0	static
