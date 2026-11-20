@@ -1,8 +1,11 @@
 /*
  * stm32_dio.c
  *
- * STM32F103 backend for the do.h digital-IO abstraction (same role as
- * ../nxp/do.c and ../samv71/samv71_do.c for their platforms).
+ * STM32F103 backend for the dio.h digital-IO abstraction (same role as
+ * ../nxp/dio.c and ../samv71/samv71_dio.c for their platforms). Renamed
+ * from do_t/do.h because this one struct is used as either a digital
+ * output OR a digital input (see dio_mode()/di_read() below) - "do"
+ * (digital-output-only) was misleading.
  *
  * me->port: 1=GPIOA, 2=GPIOB, 3=GPIOC (this part only exposes A/B/C).
  * me->pin:  0-15.
@@ -12,7 +15,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "do.h"
+#include "dio.h"
 #include "stm32f1xx.h"
 
 #define GPIO_MAX_PORTS  3U /* STM32F103C6 (LQFP48) only exposes GPIOA/B/C */
@@ -32,7 +35,7 @@ static const uint32_t gpio_clock_en[GPIO_MAX_PORTS + 1U] = {
 };
 
 /* NULL for port 0, an out-of-range port, or pin >= 16 */
-static GPIO_TypeDef *do_port(const do_t *me)
+static GPIO_TypeDef *do_port(const dio_t *me)
 {
     if ((me == NULL) || (me->port == 0U) || (me->port > GPIO_MAX_PORTS) || (me->pin >= 16U)) {
         return NULL;
@@ -50,7 +53,7 @@ static void gpio_enable_clock(uint32_t port_num)
     RCC->APB2ENR |= gpio_clock_en[port_num];
 }
 
-void do_set(do_t *me)
+void do_set(dio_t *me)
 {
     GPIO_TypeDef *port = do_port(me);
 
@@ -62,7 +65,7 @@ void do_set(do_t *me)
     me->bStatus = true;
 }
 
-void do_reset(do_t *me)
+void do_reset(dio_t *me)
 {
     GPIO_TypeDef *port = do_port(me);
 
@@ -74,7 +77,7 @@ void do_reset(do_t *me)
     me->bStatus = false;
 }
 
-void do_toggle(do_t *me)
+void do_toggle(dio_t *me)
 {
     GPIO_TypeDef *port = do_port(me);
 
@@ -93,7 +96,7 @@ void do_toggle(do_t *me)
     }
 }
 
-void dio_mode(do_t *me, dio_mode_t mode)
+void dio_mode(dio_t *me, dio_mode_t mode)
 {
     GPIO_TypeDef *port = do_port(me);
 
@@ -138,7 +141,7 @@ void dio_mode(do_t *me, dio_mode_t mode)
     }
 }
 
-bool di_read(do_t *me)
+bool di_read(dio_t *me)
 {
     GPIO_TypeDef *port = do_port(me);
 
@@ -154,10 +157,10 @@ bool di_read(do_t *me)
 
 /* SLF3x address-select pulse: 200us is far too short for the scheduler's
  * 1ms tick (os_tick_get()), so this uses the Cortex-M3 DWT cycle counter
- * directly instead - same technique as ../samv71/samv71_do.c, minus the
+ * directly instead - same technique as ../samv71/samv71_dio.c, minus the
  * DWT lock-access-register unlock that backend needs (Cortex-M7/M33
  * specific; M3's DWT isn't locked by default). */
-void dio_flow_address_pulse(do_t *me)
+void dio_flow_address_pulse(dio_t *me)
 {
     extern uint32_t SystemCoreClock;
 

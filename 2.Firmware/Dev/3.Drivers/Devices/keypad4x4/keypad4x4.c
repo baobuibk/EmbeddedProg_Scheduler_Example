@@ -6,11 +6,10 @@
 #include <stdbool.h>
 
 #include "keypad4x4.h"
-#include "do.h"
 #include "define.h"
 
-/* Standard 4x4 keypad legend - row/col order matches the pRows[]/pCols[]
- * arrays passed to keypad4x4_init() (ROW1..4, COL1..4). */
+/* Standard 4x4 keypad legend - row/col order matches the index (0-3)
+ * passed to keypad_row_read()/keypad_col_write(). */
 static const char keypad4x4_keymap[KEYPAD4X4_ROWS][KEYPAD4X4_COLS] = {
     { '1', '2', '3', 'A' },
     { '4', '5', '6', 'B' },
@@ -18,34 +17,38 @@ static const char keypad4x4_keymap[KEYPAD4X4_ROWS][KEYPAD4X4_COLS] = {
     { '*', '0', '#', 'D' },
 };
 
-uint32_t keypad4x4_init(keypad4x4_t *me, const keypad4x4_init_t *init)
+/*
+ * Weak stubs: let anything that links against this driver build without
+ * a BSP present. bLevel=true/returning true both mean "idle" (column
+ * released / row not pulled low), so a no-BSP build's keypad4x4_scan()
+ * always reports KEYPAD4X4_NO_KEY instead of a false keypress - see the
+ * header comment for how Dev/2.BSP/bsp_keypad.c overrides these.
+ */
+__attribute__((weak)) void keypad_col_write(uint8_t ui8Col, bool bLevel)
 {
-    if (me == NULL || init == NULL) {
+    (void)ui8Col;
+    (void)bLevel;
+}
+
+__attribute__((weak)) bool keypad_row_read(uint8_t ui8Row)
+{
+    (void)ui8Row;
+    return true;
+}
+
+uint32_t keypad4x4_init(keypad4x4_t *me)
+{
+    if (me == NULL) {
         return ERROR_INVALID_PARAM;
-    }
-
-    for (uint32_t i = 0U; i < KEYPAD4X4_ROWS; i++) {
-        if (init->pRows[i] == NULL) {
-            return ERROR_INVALID_PARAM;
-        }
-
-        me->pRows[i] = init->pRows[i];
-        dio_mode(me->pRows[i], OUTPUT);
-        do_set(me->pRows[i]); /* idle high - only the row being scanned goes low */
-    }
-
-    for (uint32_t i = 0U; i < KEYPAD4X4_COLS; i++) {
-        if (init->pCols[i] == NULL) {
-            return ERROR_INVALID_PARAM;
-        }
-
-        me->pCols[i] = init->pCols[i];
-        dio_mode(me->pCols[i], INPUT_PULLUP);
     }
 
     me->cLastRawKey = KEYPAD4X4_NO_KEY;
     me->ui8DebounceCount = 0U;
     me->bKeyReported = false;
+
+    for (uint32_t col = 0U; col < KEYPAD4X4_COLS; col++) {
+        keypad_col_write((uint8_t)col, true); /* idle high - only the column being scanned goes low */
+    }
 
     return ERROR_OK;
 }
@@ -58,16 +61,16 @@ char keypad4x4_scan_raw(keypad4x4_t *me)
 
     char key = KEYPAD4X4_NO_KEY;
 
-    for (uint32_t row = 0U; row < KEYPAD4X4_ROWS; row++) {
-        do_reset(me->pRows[row]);
+    for (uint32_t col = 0U; col < KEYPAD4X4_COLS; col++) {
+        keypad_col_write((uint8_t)col, false);
 
-        for (uint32_t col = 0U; col < KEYPAD4X4_COLS; col++) {
-            if (!di_read(me->pCols[col])) {
+        for (uint32_t row = 0U; row < KEYPAD4X4_ROWS; row++) {
+            if (!keypad_row_read((uint8_t)row)) {
                 key = keypad4x4_keymap[row][col];
             }
         }
 
-        do_set(me->pRows[row]);
+        keypad_col_write((uint8_t)col, true);
 
         if (key != KEYPAD4X4_NO_KEY) {
             break;

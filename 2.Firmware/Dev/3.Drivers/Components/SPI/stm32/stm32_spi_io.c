@@ -1,16 +1,25 @@
 /*
  * stm32_spi_io.c
  *
- * STM32F103 (SPI1 only - this part has no SPI2) backend for the spi_io.h
- * abstraction. Talks to the peripheral directly through CMSIS registers,
- * the same low-level style as the samv71/ reference implementation, so
- * no extra HAL module needs to be vendored in just for this driver.
+ * STM32F103C8 (medium-density: SPI1 + SPI2, unlike the low-density
+ * STM32F103C6 this project originally targeted, which only has SPI1)
+ * backend for the spi_io.h abstraction. Talks to the peripheral
+ * directly through CMSIS registers, the same low-level style as the
+ * samv71/ reference implementation, so no extra HAL module needs to be
+ * vendored in just for this driver.
  *
- * Pin mapping matches 1.Document/docs/hardware/connections.md:
- *   SCK = PA5, MISO = PA6, MOSI = PA7. Chip-select is NOT driven by this
- *   file - SPI1 is left in software NSS mode (SSM=1/SSI=1) and the
- *   caller (e.g. the RC522 driver) toggles its own CS GPIO, since one
- *   SPI bus here is shared by any number of devices.
+ * Pin mapping (no remap - AFIO is left at its default):
+ *   SPI1: SCK = PA5, MISO = PA6, MOSI = PA7 (see
+ *     1.Document/docs/hardware/connections.md - this is the bus RC522 is
+ *     wired to).
+ *   SPI2: SCK = PB13, MISO = PB14, MOSI = PB15. Not yet used by any
+ *     device in this board's design (see connections.md) - added here
+ *     because the C8 part exposes it, for whichever future device ends
+ *     up on it.
+ * Neither bus's NSS/chip-select pin (PA4 for SPI1, PB12 for SPI2) is
+ * driven by this file - both are left in software NSS mode (SSM=1/SSI=1)
+ * and the caller (e.g. the RC522 driver) toggles its own CS GPIO, since
+ * one SPI bus here is shared by any number of devices.
  *
  * None of the functions below touch me->lock - see the locking-policy
  * note in spi_io.h. They assume the application/task layer already
@@ -27,11 +36,12 @@
 #include "stm32f1xx.h"
 
 #define SPI_TIMEOUT_MS      100U
-#define SPI_MAX_BUS_NUMBER  1U   /* STM32F103C6 only has SPI1 */
+#define SPI_MAX_BUS_NUMBER  1U   /* STM32F103C8 (medium-density): SPI1 + SPI2 */
 
 static SPI_TypeDef *const spi_periph[SPI_MAX_BUS_NUMBER + 1U] = {
     NULL,
-    SPI1
+    SPI1,
+
 };
 
 /*==============================================================================
@@ -52,25 +62,40 @@ static void spi_enable_clock(uint32_t spi_port)
     if (spi_port == 1U) {
         RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
     }
+#if defined(SPI2)
+    else if (spi_port == 2U) {
+        RCC->APB1ENR |= RCC_APB1ENR_SPI2EN; /* SPI2 is on APB1, unlike SPI1 on APB2 */
+    }
+#endif
 }
 
 static void spi_gpio_init(uint32_t spi_port)
 {
-    if (spi_port != 1U) {
-        return;
+    if (spi_port == 1U) {
+        RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;
+
+        /* PA5 (SCK), PA7 (MOSI): alternate-function push-pull, 50MHz */
+        GPIOA->CRL &= ~(GPIO_CRL_MODE5_Msk | GPIO_CRL_CNF5_Msk |
+                        GPIO_CRL_MODE7_Msk | GPIO_CRL_CNF7_Msk);
+        GPIOA->CRL |= (GPIO_CRL_MODE5_Msk | GPIO_CRL_CNF5_1) |
+                      (GPIO_CRL_MODE7_Msk | GPIO_CRL_CNF7_1);
+
+        /* PA6 (MISO): input floating */
+        GPIOA->CRL &= ~(GPIO_CRL_MODE6_Msk | GPIO_CRL_CNF6_Msk);
+        GPIOA->CRL |= GPIO_CRL_CNF6_0;
+    } else if (spi_port == 2U) {
+        RCC->APB2ENR |= RCC_APB2ENR_IOPBEN; /* GPIO clocks are always on APB2 */
+
+        /* PB13 (SCK), PB15 (MOSI): alternate-function push-pull, 50MHz */
+        GPIOB->CRH &= ~(GPIO_CRH_MODE13_Msk | GPIO_CRH_CNF13_Msk |
+                        GPIO_CRH_MODE15_Msk | GPIO_CRH_CNF15_Msk);
+        GPIOB->CRH |= (GPIO_CRH_MODE13_Msk | GPIO_CRH_CNF13_1) |
+                      (GPIO_CRH_MODE15_Msk | GPIO_CRH_CNF15_1);
+
+        /* PB14 (MISO): input floating */
+        GPIOB->CRH &= ~(GPIO_CRH_MODE14_Msk | GPIO_CRH_CNF14_Msk);
+        GPIOB->CRH |= GPIO_CRH_CNF14_0;
     }
-
-    RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;
-
-    /* PA5 (SCK), PA7 (MOSI): alternate-function push-pull, 50MHz */
-    GPIOA->CRL &= ~(GPIO_CRL_MODE5_Msk | GPIO_CRL_CNF5_Msk |
-                    GPIO_CRL_MODE7_Msk | GPIO_CRL_CNF7_Msk);
-    GPIOA->CRL |= (GPIO_CRL_MODE5_Msk | GPIO_CRL_CNF5_1) |
-                  (GPIO_CRL_MODE7_Msk | GPIO_CRL_CNF7_1);
-
-    /* PA6 (MISO): input floating */
-    GPIOA->CRL &= ~(GPIO_CRL_MODE6_Msk | GPIO_CRL_CNF6_Msk);
-    GPIOA->CRL |= GPIO_CRL_CNF6_0;
 }
 
 /*==============================================================================

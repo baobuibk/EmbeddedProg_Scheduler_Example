@@ -33,10 +33,10 @@ scheduler_systick_int_handler(void)
     g_ui32SchedulerTickCount++;
 }
 
-__attribute__((weak)) void platform_systick_init(uint32_t TicksPerSecond)
-{
-    (void)TicksPerSecond;
-}
+//__attribute__((weak)) void platform_systick_init(uint32_t TicksPerSecond)
+//{
+//    (void)TicksPerSecond;
+//}
 
 //*****************************************************************************
 //

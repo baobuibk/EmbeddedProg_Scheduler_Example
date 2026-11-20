@@ -1,20 +1,55 @@
 /*
  * stm32_i2c_io.c
  *
- * STM32F103 (I2C1 only - this part has no I2C2) backend for the i2c_io.h
- * abstraction. Talks to the peripheral directly through CMSIS registers,
- * the same low-level style as Dev/3.Drivers/SPI/stm32/stm32_spi_io.c.
+ * STM32F103C8 (medium-density: I2C1 + I2C2, unlike the low-density
+ * STM32F103C6 this project originally targeted, which only has I2C1)
+ * backend for the i2c_io.h abstraction. Back on ST's LL (Low-Layer) API
+ * (stm32f1xx_ll_i2c.h/stm32f1xx_ll_gpio.h/stm32f1xx_ll_bus.h/
+ * stm32f1xx_ll_rcc.h) - this file was briefly rewritten to HAL
+ * (HAL_I2C_Init()/HAL_I2C_Master_Transmit()/HAL_I2C_Mem_Read()) while
+ * chasing the Proteus "no pulses on SDA/SCL" bug via main.c's HAL test
+ * harness (see Core/Src/main.c and this project's memory notes) - that
+ * investigation is independent of which API this file itself uses, so
+ * reverting to LL here doesn't undo any of those findings. Same public
+ * contract as always (i2c_io_init() etc., see i2c_io.h), so no caller
+ * (bsp_i2c1, bsp_rtc, bsp_lcd, bsp_eeprom) needs any change.
  *
- * Pin mapping matches 1.Document/docs/hardware/connections.md:
- *   SCL = PB6, SDA = PB7, open-drain with external ~4.7k pull-ups,
- *   shared by the 24C256 EEPROM (addr 0x50) and the LCD's PCF8574
- *   backpack (addr 0x27).
+ * Does NOT touch main.c's own HAL-based I2C1/I2C2 test harness (hi2c1/
+ * hi2c2, MX_I2C1_Init()/MX_I2C2_Init()) - that keeps running on HAL
+ * regardless of what this file uses, which is why Makefile keeps
+ * -DUSE_HAL_DRIVER alongside -DUSE_FULL_LL_DRIVER, and bsp_systick.c
+ * keeps its HAL_GetTick() override (main.c's HAL calls still need it).
+ * This backend remains the *second* initializer of I2C1 either way
+ * until the .ioc/main.c double-init question is sorted out (see this
+ * project's memory notes).
+ *
+ * Pin mapping (no remap - AFIO is left at its default):
+ *   I2C1: SCL = PB6, SDA = PB7 (see 1.Document/docs/hardware/connections.md
+ *     - shared by the 24C256 EEPROM (0x50), the LCD's PCF8574 backpack
+ *     (0x27) and the DS1307 RTC (0x68)).
+ *
+ *     Briefly remapped to PB8/PB9 (AFIO_MAPR.I2C1_REMAP) while chasing a
+ *     Proteus-simulation-only crash (PB6/PB7 double as TIM4_CH1/CH2,
+ *     same bug class as PB12/TIM1_BKIN on bsp_rc522 - see bsp_rc522.h) -
+ *     reverted back to PB6/PB7 at the user's request; PB8/PB9 are
+ *     TIM4_CH3/CH4, same TIM4 block, so the remap likely wouldn't have
+ *     dodged it anyway (unlike RC522's CS, I2C1 has no pin pair free of
+ *     a timer-channel identity on this chip).
+ *   I2C2: SCL = PB10, SDA = PB11. NOTE: on this board's current pinout,
+ *     PB10/PB11 are already assigned to the keypad's ROW3/ROW4 (see
+ *     connections.md) - I2C2 is wired up here because the C8 part
+ *     exposes it, but it is NOT actually usable on this board without
+ *     first moving the keypad rows off PB10/PB11.
+ * Both buses need open-drain pins with external pull-ups (see the
+ * hardware doc) - push-pull would let the MCU fight another device
+ * driving the bus low.
  *
  * The master read sequence below (N==1 / N==2 / N>2 byte counts needing
  * different ACK/STOP timing) follows the standard algorithm from RM0008
  * ("I2C master mode" / EV7 event handling) - STM32F1's I2C has no
  * single-shot "read N bytes" register, so this is the normal amount of
- * bookkeeping for this peripheral.
+ * bookkeeping for this peripheral, whether driven by raw registers or
+ * by LL's thin wrappers around the same registers.
  *
  * None of the functions below touch me->lock - see the locking-policy
  * note in i2c_io.h. They assume the application/task layer already
@@ -29,13 +64,21 @@
 #include "i2c_io.h"
 #include "define.h"
 #include "stm32f1xx.h"
+#include "stm32f1xx_ll_bus.h"
+#include "stm32f1xx_ll_gpio.h"
+#include "stm32f1xx_ll_i2c.h"
+#include "stm32f1xx_ll_rcc.h"
 
 #define I2C_TIMEOUT_MS      100U
-#define I2C_MAX_BUS_NUMBER  1U   /* STM32F103C6 only has I2C1 */
+#define I2C_MAX_BUS_NUMBER  1U   /* STM32F103C8 (medium-density): I2C1 + I2C2.
+                                    I2C2 branches below are guarded with
+                                    #if defined(I2C2) since low-density parts
+                                    (STM32F103C4/C6) have no I2C2 peripheral. */
 
 static I2C_TypeDef *const i2c_periph[I2C_MAX_BUS_NUMBER + 1U] = {
     NULL,
-    I2C1
+    I2C1,
+
 };
 
 /*==============================================================================
@@ -54,70 +97,112 @@ static I2C_TypeDef *i2c_get_instance(uint32_t i2c_port)
 static void i2c_enable_clock(uint32_t i2c_port)
 {
     if (i2c_port == 1U) {
-        RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
+        LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_I2C1);
     }
+#if defined(I2C2)
+    else if (i2c_port == 2U) {
+        LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_I2C2);
+    }
+#endif
+}
+
+static void i2c_gpio_config_pin(GPIO_TypeDef *port, uint32_t ll_pin)
+{
+    /* Alternate-function OPEN-DRAIN, 50MHz - see the open-drain
+     * rationale in the file header comment. */
+    LL_GPIO_SetPinMode(port, ll_pin, LL_GPIO_MODE_ALTERNATE);
+    LL_GPIO_SetPinOutputType(port, ll_pin, LL_GPIO_OUTPUT_OPENDRAIN);
+    LL_GPIO_SetPinSpeed(port, ll_pin, LL_GPIO_SPEED_FREQ_HIGH);
 }
 
 static void i2c_gpio_init(uint32_t i2c_port)
 {
-    if (i2c_port != 1U) {
-        return;
+    if (i2c_port == 1U) {
+        LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOB);
+
+        /* PB6 (SCL), PB7 (SDA). */
+        i2c_gpio_config_pin(GPIOB, LL_GPIO_PIN_6);
+        i2c_gpio_config_pin(GPIOB, LL_GPIO_PIN_7);
+    } else if (i2c_port == 2U) {
+        LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOB);
+
+        /* PB10 (SCL), PB11 (SDA) - see this file's header comment for
+         * the PB10/PB11 vs. keypad ROW3/ROW4 pin conflict on this
+         * board. */
+        i2c_gpio_config_pin(GPIOB, LL_GPIO_PIN_10);
+        i2c_gpio_config_pin(GPIOB, LL_GPIO_PIN_11);
     }
-
-    RCC->APB2ENR |= RCC_APB2ENR_IOPBEN;
-
-    /* PB6 (SCL), PB7 (SDA): alternate-function OPEN-DRAIN, 50MHz. I2C
-     * requires open-drain + external pull-ups (see hardware doc) - push-pull
-     * here would let the MCU fight another device driving the bus low. */
-    GPIOB->CRL &= ~(GPIO_CRL_MODE6_Msk | GPIO_CRL_CNF6_Msk |
-                    GPIO_CRL_MODE7_Msk | GPIO_CRL_CNF7_Msk);
-    GPIOB->CRL |= (GPIO_CRL_MODE6_Msk | GPIO_CRL_CNF6_Msk) |
-                  (GPIO_CRL_MODE7_Msk | GPIO_CRL_CNF7_Msk);
 }
 
-/* APB1 clock in Hz, decoded from SystemCoreClock (=HCLK) and RCC->CFGR's
- * PPRE1 prescaler - needed to compute CR2.FREQ/CCR/TRISE correctly
- * regardless of how SystemClock_Config() ends up configuring the bus. */
+/* APB1 clock in Hz, via LL's own clock-tree decoder (reads the same
+ * RCC->CFGR prescaler bits our previous hand-rolled version did, just
+ * through the LL-maintained helper) - needed to compute CR2.FREQ/CCR/
+ * TRISE correctly regardless of how SystemClock_Config() ends up
+ * configuring the bus. */
 static uint32_t i2c_get_pclk1_hz(void)
 {
-    extern uint32_t SystemCoreClock;
+    LL_RCC_ClocksTypeDef clocks;
 
-    uint32_t ppre1 = (RCC->CFGR & RCC_CFGR_PPRE1_Msk) >> RCC_CFGR_PPRE1_Pos;
-    uint32_t div = 1U;
+    LL_RCC_GetSystemClocksFreq(&clocks);
 
-    if (ppre1 >= 4U) {
-        div = 1U << (ppre1 - 3U); /* 100b->/2, 101b->/4, 110b->/8, 111b->/16 */
+    return clocks.PCLK1_Frequency;
+}
+
+typedef uint32_t (*i2c_flag_check_fn)(I2C_TypeDef *);
+
+static uint32_t i2c_wait_flag_set(I2C_TypeDef *i2c, i2c_flag_check_fn check, uint32_t timeout_ms)
+{
+    uint32_t start_tick = os_tick_get();
+
+    while (check(i2c) == 0U) {
+        if ((os_tick_get() - start_tick) >= timeout_ms) {
+            return ERROR_TIMEOUT;
+        }
     }
 
-    return SystemCoreClock / div;
+    return ERROR_OK;
+}
+
+static uint32_t i2c_wait_flag_clear(I2C_TypeDef *i2c, i2c_flag_check_fn check, uint32_t timeout_ms)
+{
+    uint32_t start_tick = os_tick_get();
+
+    while (check(i2c) != 0U) {
+        if ((os_tick_get() - start_tick) >= timeout_ms) {
+            return ERROR_TIMEOUT;
+        }
+    }
+
+    return ERROR_OK;
 }
 
 /* Generates (repeated) START and the 7-bit address+R/W phase. On success,
- * ADDR has been cleared (SR1 then SR2 read) and the caller may proceed
- * straight to i2c_write_bytes()/i2c_read_bytes(). */
+ * ADDR has been cleared (SR1 then SR2 read, via LL_I2C_ClearFlag_ADDR)
+ * and the caller may proceed straight to i2c_write_bytes()/
+ * i2c_read_bytes(). */
 static uint32_t i2c_start(I2C_TypeDef *i2c, uint16_t dev_addr, bool read)
 {
-    if (os_reg_wait_flag_clear_blocking(&i2c->SR2, I2C_SR2_BUSY_Msk, I2C_TIMEOUT_MS) != ERROR_OK) {
+    if (i2c_wait_flag_clear(i2c, LL_I2C_IsActiveFlag_BUSY, I2C_TIMEOUT_MS) != ERROR_OK) {
         return ERROR_TIMEOUT;
     }
 
-    i2c->CR1 |= I2C_CR1_START_Msk;
+    LL_I2C_GenerateStartCondition(i2c);
 
-    if (os_reg_wait_flag_blocking(&i2c->SR1, I2C_SR1_SB_Msk, I2C_TIMEOUT_MS) != ERROR_OK) {
+    if (i2c_wait_flag_set(i2c, LL_I2C_IsActiveFlag_SB, I2C_TIMEOUT_MS) != ERROR_OK) {
         return ERROR_TIMEOUT;
     }
 
-    i2c->DR = (uint32_t)((dev_addr << 1) | (read ? 1U : 0U));
+    LL_I2C_TransmitData8(i2c, (uint8_t)((dev_addr << 1) | (read ? 1U : 0U)));
 
     uint32_t start_tick = os_tick_get();
 
     for (;;) {
-        if ((i2c->SR1 & I2C_SR1_ADDR_Msk) != 0U) {
+        if (LL_I2C_IsActiveFlag_ADDR(i2c) != 0U) {
             break;
         }
 
-        if ((i2c->SR1 & I2C_SR1_AF_Msk) != 0U) {
-            i2c->SR1 &= ~I2C_SR1_AF_Msk;
+        if (LL_I2C_IsActiveFlag_AF(i2c) != 0U) {
+            LL_I2C_ClearFlag_AF(i2c);
             return ERROR_NACK;
         }
 
@@ -126,8 +211,7 @@ static uint32_t i2c_start(I2C_TypeDef *i2c, uint16_t dev_addr, bool read)
         }
     }
 
-    (void)i2c->SR1;
-    (void)i2c->SR2; /* reading SR1 then SR2 clears ADDR (RM0008 EV6) */
+    LL_I2C_ClearFlag_ADDR(i2c); /* reads SR1 then SR2 - RM0008 EV6 */
 
     return ERROR_OK;
 }
@@ -138,19 +222,19 @@ static uint32_t i2c_start(I2C_TypeDef *i2c, uint16_t dev_addr, bool read)
 static uint32_t i2c_write_bytes(I2C_TypeDef *i2c, const uint8_t *buf, uint32_t len)
 {
     for (uint32_t i = 0U; i < len; i++) {
-        if (os_reg_wait_flag_blocking(&i2c->SR1, I2C_SR1_TXE_Msk, I2C_TIMEOUT_MS) != ERROR_OK) {
+        if (i2c_wait_flag_set(i2c, LL_I2C_IsActiveFlag_TXE, I2C_TIMEOUT_MS) != ERROR_OK) {
             return ERROR_TIMEOUT;
         }
 
-        if ((i2c->SR1 & I2C_SR1_AF_Msk) != 0U) {
-            i2c->SR1 &= ~I2C_SR1_AF_Msk;
+        if (LL_I2C_IsActiveFlag_AF(i2c) != 0U) {
+            LL_I2C_ClearFlag_AF(i2c);
             return ERROR_NACK;
         }
 
-        i2c->DR = buf[i];
+        LL_I2C_TransmitData8(i2c, buf[i]);
     }
 
-    if (os_reg_wait_flag_blocking(&i2c->SR1, I2C_SR1_BTF_Msk, I2C_TIMEOUT_MS) != ERROR_OK) {
+    if (i2c_wait_flag_set(i2c, LL_I2C_IsActiveFlag_BTF, I2C_TIMEOUT_MS) != ERROR_OK) {
         return ERROR_TIMEOUT;
     }
 
@@ -163,62 +247,62 @@ static uint32_t i2c_write_bytes(I2C_TypeDef *i2c, const uint8_t *buf, uint32_t l
 static uint32_t i2c_read_bytes(I2C_TypeDef *i2c, uint8_t *buf, uint32_t len)
 {
     if (len == 1U) {
-        i2c->CR1 &= ~I2C_CR1_ACK_Msk;
-        i2c->CR1 |= I2C_CR1_STOP_Msk;
+        LL_I2C_AcknowledgeNextData(i2c, LL_I2C_NACK);
+        LL_I2C_GenerateStopCondition(i2c);
 
-        if (os_reg_wait_flag_blocking(&i2c->SR1, I2C_SR1_RXNE_Msk, I2C_TIMEOUT_MS) != ERROR_OK) {
+        if (i2c_wait_flag_set(i2c, LL_I2C_IsActiveFlag_RXNE, I2C_TIMEOUT_MS) != ERROR_OK) {
             return ERROR_TIMEOUT;
         }
 
-        buf[0] = (uint8_t)i2c->DR;
-        i2c->CR1 |= I2C_CR1_ACK_Msk;
+        buf[0] = LL_I2C_ReceiveData8(i2c);
+        LL_I2C_AcknowledgeNextData(i2c, LL_I2C_ACK);
         return ERROR_OK;
     }
 
     if (len == 2U) {
-        i2c->CR1 |= I2C_CR1_POS_Msk;
-        i2c->CR1 &= ~I2C_CR1_ACK_Msk;
+        LL_I2C_EnableBitPOS(i2c);
+        LL_I2C_AcknowledgeNextData(i2c, LL_I2C_NACK);
 
-        if (os_reg_wait_flag_blocking(&i2c->SR1, I2C_SR1_BTF_Msk, I2C_TIMEOUT_MS) != ERROR_OK) {
-            i2c->CR1 &= ~I2C_CR1_POS_Msk;
-            i2c->CR1 |= I2C_CR1_ACK_Msk;
+        if (i2c_wait_flag_set(i2c, LL_I2C_IsActiveFlag_BTF, I2C_TIMEOUT_MS) != ERROR_OK) {
+            LL_I2C_DisableBitPOS(i2c);
+            LL_I2C_AcknowledgeNextData(i2c, LL_I2C_ACK);
             return ERROR_TIMEOUT;
         }
 
-        i2c->CR1 |= I2C_CR1_STOP_Msk;
-        buf[0] = (uint8_t)i2c->DR;
-        buf[1] = (uint8_t)i2c->DR;
-        i2c->CR1 &= ~I2C_CR1_POS_Msk;
-        i2c->CR1 |= I2C_CR1_ACK_Msk;
+        LL_I2C_GenerateStopCondition(i2c);
+        buf[0] = LL_I2C_ReceiveData8(i2c);
+        buf[1] = LL_I2C_ReceiveData8(i2c);
+        LL_I2C_DisableBitPOS(i2c);
+        LL_I2C_AcknowledgeNextData(i2c, LL_I2C_ACK);
         return ERROR_OK;
     }
 
     /* len > 2: stream all but the last two bytes normally, then the same
      * "wait BTF, clear ACK, read N-2, STOP, read N-1" tail as above. */
-    i2c->CR1 |= I2C_CR1_ACK_Msk;
+    LL_I2C_AcknowledgeNextData(i2c, LL_I2C_ACK);
 
     for (uint32_t i = 0U; i < (len - 2U); i++) {
-        if (os_reg_wait_flag_blocking(&i2c->SR1, I2C_SR1_RXNE_Msk, I2C_TIMEOUT_MS) != ERROR_OK) {
+        if (i2c_wait_flag_set(i2c, LL_I2C_IsActiveFlag_RXNE, I2C_TIMEOUT_MS) != ERROR_OK) {
             return ERROR_TIMEOUT;
         }
 
-        buf[i] = (uint8_t)i2c->DR;
+        buf[i] = LL_I2C_ReceiveData8(i2c);
     }
 
-    if (os_reg_wait_flag_blocking(&i2c->SR1, I2C_SR1_BTF_Msk, I2C_TIMEOUT_MS) != ERROR_OK) {
+    if (i2c_wait_flag_set(i2c, LL_I2C_IsActiveFlag_BTF, I2C_TIMEOUT_MS) != ERROR_OK) {
         return ERROR_TIMEOUT;
     }
 
-    i2c->CR1 &= ~I2C_CR1_ACK_Msk;
-    buf[len - 2U] = (uint8_t)i2c->DR;
-    i2c->CR1 |= I2C_CR1_STOP_Msk;
+    LL_I2C_AcknowledgeNextData(i2c, LL_I2C_NACK);
+    buf[len - 2U] = LL_I2C_ReceiveData8(i2c);
+    LL_I2C_GenerateStopCondition(i2c);
 
-    if (os_reg_wait_flag_blocking(&i2c->SR1, I2C_SR1_RXNE_Msk, I2C_TIMEOUT_MS) != ERROR_OK) {
+    if (i2c_wait_flag_set(i2c, LL_I2C_IsActiveFlag_RXNE, I2C_TIMEOUT_MS) != ERROR_OK) {
         return ERROR_TIMEOUT;
     }
 
-    buf[len - 1U] = (uint8_t)i2c->DR;
-    i2c->CR1 |= I2C_CR1_ACK_Msk;
+    buf[len - 1U] = LL_I2C_ReceiveData8(i2c);
+    LL_I2C_AcknowledgeNextData(i2c, LL_I2C_ACK);
 
     return ERROR_OK;
 }
@@ -244,8 +328,8 @@ uint32_t i2c_io_init(i2c_io_t *me)
     i2c_enable_clock(me->ui32I2cPort);
     i2c_gpio_init(me->ui32I2cPort);
 
-    i2c->CR1 |= I2C_CR1_SWRST_Msk;
-    i2c->CR1 &= ~I2C_CR1_SWRST_Msk;
+    LL_I2C_EnableReset(i2c);
+    LL_I2C_DisableReset(i2c);
 
     return i2c_io_set_speed(me, I2C_DEFAULT_SPEED_HZ);
 }
@@ -264,38 +348,14 @@ uint32_t i2c_io_set_speed(i2c_io_t *me, uint32_t ui32SpeedHz)
 
     /* Caller must hold the bus lock (i2c_io_lock()) - see i2c_io.h. */
 
-    uint32_t pclk1_hz = i2c_get_pclk1_hz();
-    uint32_t pclk1_mhz = pclk1_hz / 1000000U;
+    /* FREQ/CCR/TRISE (set inside LL_I2C_ConfigSpeed) may only be
+     * written while PE=0. */
+    LL_I2C_Disable(i2c);
 
-    /* FREQ/CCR/TRISE may only be written while PE=0. */
-    i2c->CR1 &= ~I2C_CR1_PE_Msk;
+    LL_I2C_ConfigSpeed(i2c, i2c_get_pclk1_hz(), ui32SpeedHz, LL_I2C_DUTYCYCLE_2);
 
-    i2c->CR2 = (i2c->CR2 & ~I2C_CR2_FREQ_Msk) | (pclk1_mhz & I2C_CR2_FREQ_Msk);
-
-    if (ui32SpeedHz <= 100000U) {
-        /* Standard mode: Thigh = Tlow = CCR * Tpclk1, max SCL rise 1000ns */
-        uint32_t ccr = pclk1_hz / (2U * ui32SpeedHz);
-
-        if (ccr < 4U) {
-            ccr = 4U;
-        }
-
-        i2c->CCR = ccr & I2C_CCR_CCR_Msk; /* FS=0 (standard), DUTY=0 */
-        i2c->TRISE = (pclk1_mhz + 1U) & I2C_TRISE_TRISE_Msk;
-    } else {
-        /* Fast mode, Tlow/Thigh = 2 (DUTY=0), max SCL rise 300ns */
-        uint32_t ccr = pclk1_hz / (3U * ui32SpeedHz);
-
-        if (ccr < 1U) {
-            ccr = 1U;
-        }
-
-        i2c->CCR = (ccr & I2C_CCR_CCR_Msk) | I2C_CCR_FS_Msk;
-        i2c->TRISE = (((pclk1_mhz * 300U) / 1000U) + 1U) & I2C_TRISE_TRISE_Msk;
-    }
-
-    i2c->CR1 |= I2C_CR1_PE_Msk;
-    i2c->CR1 |= I2C_CR1_ACK_Msk;
+    LL_I2C_Enable(i2c);
+    LL_I2C_AcknowledgeNextData(i2c, LL_I2C_ACK);
 
     return ERROR_OK;
 }
@@ -327,7 +387,7 @@ uint32_t i2c_io_write_sync(i2c_io_t *me, uint16_t ui16DevAddr,
 
     /* Always generate STOP, whether or not the transfer succeeded -
      * leaving it ungenerated would hang every subsequent transaction. */
-    i2c->CR1 |= I2C_CR1_STOP_Msk;
+    LL_I2C_GenerateStopCondition(i2c);
 
     return err;
 }
@@ -354,7 +414,7 @@ uint32_t i2c_io_read_sync(i2c_io_t *me, uint16_t ui16DevAddr,
          * by the byte count (see RM0008) - do not also set it here. */
         err = i2c_read_bytes(i2c, pui8RxBuff, ui32Length);
     } else {
-        i2c->CR1 |= I2C_CR1_STOP_Msk;
+        LL_I2C_GenerateStopCondition(i2c);
     }
 
     return err;
@@ -392,10 +452,10 @@ uint32_t i2c_io_write_read_sync(i2c_io_t *me, uint16_t ui16DevAddr,
         if (err == ERROR_OK) {
             err = i2c_read_bytes(i2c, pui8RxBuff, ui32RxLength);
         } else {
-            i2c->CR1 |= I2C_CR1_STOP_Msk;
+            LL_I2C_GenerateStopCondition(i2c);
         }
     } else {
-        i2c->CR1 |= I2C_CR1_STOP_Msk;
+        LL_I2C_GenerateStopCondition(i2c);
     }
 
     return err;

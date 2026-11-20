@@ -1,16 +1,28 @@
 /*
  * keypad4x4.h
  *
- * Driver for a 4x4 matrix keypad (see
- * 1.Document/docs/hardware/connections.md #1 - 4 ROW outputs + 4 COL
- * inputs, no diodes assumed), built on the platform-agnostic do.h
- * GPIO abstraction.
+ * Driver for a 4x4 matrix keypad. Unlike most drivers under
+ * Dev/3.Drivers/Devices/, this one does not take dio_t pins in its init
+ * struct - it instead calls two board-specific functions, declared here
+ * and given a weak (overridable) default definition in keypad4x4.c:
  *
- * Scan technique: drive one ROW low at a time (others left high),
- * read all 4 COLs (pulled up), the first COL read low identifies the
- * pressed key at (row, col) via keypad4x4_keymap - standard approach
- * for a keypad with no row/column diodes, which only ever reports one
- * key at a time.
+ *   - keypad_col_write(ui8Col, bLevel): drive one column line
+ *   - keypad_row_read(ui8Row): read one row line
+ *
+ * A real implementation lives in Dev/2.BSP/bsp_keypad.c (wired to this
+ * board's actual pins - PA0-3 for the 4 columns, PA4-7 for the 4 rows -
+ * see 1.Document/docs/hardware/connections.md) and overrides the weak
+ * stub at link time. This lets the driver (and anything that scans a
+ * keypad) build and link without a BSP present, and keeps the pin
+ * assignment out of Dev/3.Drivers entirely - same separation of concerns
+ * as i2c_io.h/spi_io.h/dio.h being platform-agnostic, just one layer
+ * re-cut: here it's the *board*, not the *platform*, that's abstracted
+ * away.
+ *
+ * Scan technique: drive one COL low at a time (others high), read all 4
+ * ROWs (pulled up) - the first ROW read low identifies the pressed key
+ * at (row, col) via keypad4x4_keymap. Only reports one key at a time (no
+ * diodes assumed).
  *
  * keypad4x4_scan() is meant to be called periodically (e.g. from a
  * scheduler task - see Dev/4.MiddleWare/scheduler): it debounces
@@ -24,7 +36,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "do.h"
 #include "define.h"
 
 /******************************************************************************/
@@ -49,25 +60,28 @@
 
 typedef struct
 {
-    do_t *pRows[KEYPAD4X4_ROWS];   /* ROW1..ROW4 - driven, active-low scan */
-    do_t *pCols[KEYPAD4X4_COLS];   /* COL1..COL4 - read, pulled up */
-} keypad4x4_init_t;
-
-typedef struct
-{
-    do_t   *pRows[KEYPAD4X4_ROWS];
-    do_t   *pCols[KEYPAD4X4_COLS];
     char    cLastRawKey;
     uint8_t ui8DebounceCount;
     bool    bKeyReported;
 } keypad4x4_t;
 
 /******************************************************************************/
+/*********************** Board-specific pin functions **************************/
+/******************************************************************************/
+
+/*
+ * Weak defaults (see keypad4x4.c) - a real board provides the strong
+ * definitions in Dev/2.BSP/bsp_keypad.c. ui8Col/ui8Row are 0-3, indexing
+ * the same order as keypad4x4_keymap's rows/columns.
+ */
+void keypad_col_write(uint8_t ui8Col, bool bLevel);
+bool keypad_row_read(uint8_t ui8Row);
+
+/******************************************************************************/
 /*************************** Public API Declarations **************************/
 /******************************************************************************/
 
-/* Configures pRows as OUTPUT (idle high) and pCols as INPUT_PULLUP. */
-uint32_t keypad4x4_init(keypad4x4_t *me, const keypad4x4_init_t *init);
+uint32_t keypad4x4_init(keypad4x4_t *me);
 
 /* One immediate scan, no debounce - returns the currently-pressed key's
  * character (see keypad4x4_keymap in keypad4x4.c), or KEYPAD4X4_NO_KEY. */

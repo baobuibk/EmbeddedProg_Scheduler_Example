@@ -1,3 +1,0 @@
-../Dev/3.Drivers/Components/SPI/spi_io.c:20:10:spi_io_lock_init	2
-../Dev/3.Drivers/Components/SPI/spi_io.c:34:10:spi_io_lock	2
-../Dev/3.Drivers/Components/SPI/spi_io.c:43:10:spi_io_unlock	2

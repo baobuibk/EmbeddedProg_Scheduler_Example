@@ -8,7 +8,8 @@
 #include "lcd1602_i2c.h"
 #include "i2c_io.h"
 #include "define.h"
-
+#include "stm32f1xx.h"
+#include "stm32f1xx_ll_i2c.h"
 /* PCF8574 bit positions (see the wiring note in lcd1602_i2c.h) */
 #define LCD_BIT_RS      (0x01u)
 #define LCD_BIT_RW      (0x02u)
@@ -38,6 +39,7 @@ static const uint8_t lcd_row_offset[LCD1602_ROWS] = { 0x00U, 0x40U };
  */
 static uint32_t lcd1602_i2c_write(lcd1602_t *me, uint8_t ui8Byte)
 {
+
     return i2c_io_write_sync(me->pI2cBus, me->ui16DevAddr, &ui8Byte, 1U);
 }
 
@@ -116,30 +118,30 @@ uint32_t lcd1602_init(lcd1602_t *me, const lcd1602_init_t *init)
     if (err == ERROR_OK) {
         err = lcd1602_write_nibble(me, 0x30U, false);
     }
-
-    if (err == ERROR_OK) {
-        err = lcd1602_write_nibble(me, 0x30U, false);
-    }
-
-    if (err == ERROR_OK) {
-        err = lcd1602_write_nibble(me, 0x20U, false); /* switch to 4-bit */
-    }
-
-    if (err == ERROR_OK) {
-        err = lcd1602_command(me, LCD_CMD_FUNCTION_SET | LCD_FUNCTION_4BIT_2LINE);
-    }
-
-    if (err == ERROR_OK) {
-        err = lcd1602_command(me, LCD_CMD_DISPLAY_CONTROL | LCD_DISPLAY_ON);
-    }
-
-    if (err == ERROR_OK) {
-        err = lcd1602_clear(me);
-    }
-
-    if (err == ERROR_OK) {
-        err = lcd1602_command(me, LCD_CMD_ENTRY_MODE_SET | LCD_ENTRY_LEFT_TO_RIGHT);
-    }
+//
+//    if (err == ERROR_OK) {
+//        err = lcd1602_write_nibble(me, 0x30U, false);
+//    }
+//
+//    if (err == ERROR_OK) {
+//        err = lcd1602_write_nibble(me, 0x20U, false); /* switch to 4-bit */
+//    }
+//
+//    if (err == ERROR_OK) {
+//        err = lcd1602_command(me, LCD_CMD_FUNCTION_SET | LCD_FUNCTION_4BIT_2LINE);
+//    }
+//
+//    if (err == ERROR_OK) {
+//        err = lcd1602_command(me, LCD_CMD_DISPLAY_CONTROL | LCD_DISPLAY_ON);
+//    }
+//
+//    if (err == ERROR_OK) {
+//        err = lcd1602_clear(me);
+//    }
+//
+//    if (err == ERROR_OK) {
+//        err = lcd1602_command(me, LCD_CMD_ENTRY_MODE_SET | LCD_ENTRY_LEFT_TO_RIGHT);
+//    }
 
     return err;
 }

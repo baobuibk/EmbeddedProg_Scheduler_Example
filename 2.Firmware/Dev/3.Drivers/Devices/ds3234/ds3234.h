@@ -1,7 +1,7 @@
 #ifndef DS3234_H
 #define DS3234_H
 
-#include "do.h"
+#include "dio.h"
 #include <spi_io.h>
 
 // Định nghĩa các thanh ghi của DS3234
@@ -40,7 +40,7 @@ typedef struct {
 // Cấu trúc khởi tạo cho DS3234
 typedef struct {
     spi_io_t *	spiBus;
-    do_t	 *	csPin;
+    dio_t	 *	csPin;
     uint8_t 	hourMode;          // DS3234_HOUR_MODE_24H hoặc DS3234_HOUR_MODE_12H
     uint8_t     ui8OutputMode;     // DS3234_OUTPUT_MODE_SQW hoặc DS3234_OUTPUT_MODE_INT
     uint8_t 	ui8SqwFreq;       // DS3234_SQW_FREQ_1HZ, DS3234_SQW_FREQ_1024HZ, DS3234_SQW_FREQ_4096HZ, hoặc DS3234_SQW_FREQ_8192HZ
@@ -49,7 +49,7 @@ typedef struct {
 // Instance structure cho DS3234
 typedef struct {
     spi_io_t *	spiBus;
-    do_t	*	csPin;
+    dio_t	*	csPin;
     uint8_t 	hourMode;          // DS3234_HOUR_MODE_24H hoặc DS3234_HOUR_MODE_12H
     uint8_t 	ui8OutputMode;     // DS3234_OUTPUT_MODE_SQW hoặc DS3234_OUTPUT_MODE_INT
     uint8_t 	ui8SqwFreq;       // DS3234_SQW_FREQ_1HZ, DS3234_SQW_FREQ_1024HZ, DS3234_SQW_FREQ_4096HZ, hoặc DS3234_SQW_FREQ_8192HZ

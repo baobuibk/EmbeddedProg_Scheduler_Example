@@ -7,7 +7,7 @@
 
 #include "rc522.h"
 #include "spi_io.h"
-#include "do.h"
+#include "dio.h"
 #include "os.h"
 #include "define.h"
 

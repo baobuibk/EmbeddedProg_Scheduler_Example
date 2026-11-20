@@ -3,9 +3,9 @@
  *
  * Driver for the MFRC522 RFID reader module (see
  * 1.Document/docs/hardware/connections.md #6 - SPI1 + software CS on
- * PA4 + RST on PB0), built on the platform-agnostic spi_io.h/do.h
+ * PA4 + RST on PB0), built on the platform-agnostic spi_io.h/dio.h
  * abstractions, same style as Dev/3.Drivers/Devices/ds3234 (SPI device,
- * CS toggled by the caller's do_t around a locked transfer).
+ * CS toggled by the caller's dio_t around a locked transfer).
  *
  * Scope: card presence (REQA) and single-size (4-byte) UID read
  * (anticollision cascade level 1 only) - covers the Mifare
@@ -14,8 +14,10 @@
  * "double/triple size" cards) are not handled.
  *
  * This driver does not use the IRQ pin (PB5, EXTI) - it's a polled
- * (ComIrqReg) implementation; wiring IRQ-driven wake-up is an
- * application/scheduler-layer concern, not this driver's.
+ * (ComIrqReg) implementation; Dev/2.BSP/bsp_rc522 is purely polled too,
+ * on purpose (see its own top comment for why an EXTI-driven path
+ * wouldn't actually buy anything given this driver's blocking
+ * transceive and the board's cooperative scheduler).
  */
 
 #pragma once
@@ -24,7 +26,7 @@
 #include <stdbool.h>
 
 #include "spi_io.h"
-#include "do.h"
+#include "dio.h"
 #include "define.h"
 
 /******************************************************************************/
@@ -44,15 +46,15 @@
 typedef struct
 {
     spi_io_t *pSpiBus;
-    do_t     *pCsPin;
-    do_t     *pRstPin;
+    dio_t    *pCsPin;
+    dio_t    *pRstPin;
 } rc522_init_t;
 
 typedef struct
 {
     spi_io_t *pSpiBus;
-    do_t     *pCsPin;
-    do_t     *pRstPin;
+    dio_t    *pCsPin;
+    dio_t    *pRstPin;
 } rc522_t;
 
 /******************************************************************************/
